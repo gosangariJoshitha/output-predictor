@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - QuizTech Arena</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container auth-page">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Register</h1>
+                <p>Join the Competition</p>
+            </div>
+
+            <!-- IMPORTANT: onsubmit added -->
+            <form class="form" onsubmit="register(event)">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="rollNo">Roll No</label>
+                    <input type="text" id="rollNo" required placeholder="Enter your roll number">
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <select id="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1">First Year</option>
+                        <option value="2">Second Year</option>
+                        <option value="3">Third Year</option>
+                        <option value="4">Fourth Year</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Create a password">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Register
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+<script>
+function register(e) {
+    e.preventDefault();   // VERY IMPORTANT (stops page reload)
+
+    const name = document.getElementById("name").value.trim();
+    const rollNo = document.getElementById("rollNo").value.trim();
+    const year = document.getElementById("year").value;
+    const password = document.getElementById("password").value.trim();
+
+    if (!name || !rollNo || !year || !password) {
+        alert("All fields are required");
+        return;
+    }
+
+    fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, rollNo, year, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data); // Debug
+        alert(data.message);
+
+        if (data.success) {
+            window.location = "login.html";
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Server error. Make sure backend is running.");
+    });
+}
+</script>
+
+</body>
+</html>

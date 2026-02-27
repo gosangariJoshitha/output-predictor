@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - QuizTech Arena</title>
+    <link rel="stylesheet" href="../frontend/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <div class="admin-actions">
+                <button id="logoutBtn" class="btn btn-logout">Logout</button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="submittedCount">0</div>
+                <div class="stat-label">Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-section">
+            <h2>Leaderboard</h2>
+            <div class="table-wrapper">
+                <table id="leaderboardTable" class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Year</th>
+                            <th>Score</th>
+                            <th>Time Taken</th>
+                            <th>Submitted At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <tr>
+                            <td colspan="7" class="loading-text">Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+const API = "http://localhost:5000";
+let leaderboardData = [];
+
+// Protect Admin Route
+if (localStorage.getItem("rollNo") !== "ADMIN") {
+    window.location = "login.html";
+}
+
+// Load Data Initially
+loadLeaderboard();
+
+// Auto refresh every 5 seconds
+setInterval(loadLeaderboard, 5000);
+
+function loadLeaderboard() {
+    fetch(API + "/leaderboard")
+    .then(res => res.json())
+    .then(data => {
+        leaderboardData = data;
+        renderTable(data);
+        updateStats(data);
+    });
+}
+
+function renderTable(data) {
+
+    const tbody = document.getElementById("leaderboardBody");
+    tbody.innerHTML = "";
+
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7">No Submissions Yet</td></tr>`;
+        return;
+    }
+
+    data.forEach((user, index) => {
+
+        let medal = "";
+        if (index === 0) medal = "🥇";
+        if (index === 1) medal = "🥈";
+        if (index === 2) medal = "🥉";
+
+        const row = `
+        <tr class="${index < 3 ? 'top-rank' : ''}">
+            <td>${medal} ${index + 1}</td>
+            <td>${user.name}</td>
+            <td>${user.rollNo}</td>
+            <td>${user.year}</td>
+            <td>${user.score}</td>
+            <td>${user.timeTaken} sec</td>
+            <td>${new Date(user.submittedAt).toLocaleString()}</td>
+        </tr>
+        `;
+
+        tbody.innerHTML += row;
+    });
+}
+
+function updateStats(data) {
+    document.getElementById("totalUsers").innerText = data.length;
+    document.getElementById("submittedCount").innerText = data.length;
+    document.getElementById("pendingCount").innerText = 0;
+}
+
+/* 🔍 SEARCH FILTER */
+const searchInput = document.createElement("input");
+searchInput.placeholder = "Search by Name or Roll No";
+searchInput.className = "search-input";
+searchInput.style.marginBottom = "10px";
+document.querySelector(".leaderboard-section").prepend(searchInput);
+
+searchInput.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+    const filtered = leaderboardData.filter(user =>
+        user.name.toLowerCase().includes(value) ||
+        user.rollNo.toLowerCase().includes(value)
+    );
+    renderTable(filtered);
+});
+
+/* 🚪 LOGOUT */
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.clear();
+    window.location = "login.html";
+});
+
+</script>
+</body>
+</html>

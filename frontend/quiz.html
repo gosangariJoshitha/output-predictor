@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - QuizTech Arena</title>
+     <link rel="stylesheet" href="../frontend/style.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Header -->
+        <div class="quiz-header">
+            <div class="quiz-title">QuizTech Arena</div>
+            <div class="timer-section">
+                <span class="timer-label">Time Remaining:</span>
+                <div id="timer" class="timer">30:00</div>
+            </div>
+            <button id="logoutBtn" class="btn btn-logout">Logout</button>
+        </div>
+
+        <div class="quiz-main">
+            <!-- Left Panel - Questions -->
+            <div class="quiz-left">
+                <div class="question-section">
+                    <div class="question-header">
+                        <h2 id="questionNumber">Question 1</h2>
+                        <span id="languageTag" class="language-tag">Python</span>
+                    </div>
+
+                    <div class="code-block">
+                        <pre id="codeContent">// Code will load here</pre>
+                    </div>
+
+                    <div class="options-section">
+                        <div class="option">
+                            <input type="radio" id="option1" name="answer" value="0">
+                            <label for="option1" id="optionLabel1"></label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option2" name="answer" value="1">
+                            <label for="option2" id="optionLabel2"></label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option3" name="answer" value="2">
+                            <label for="option3" id="optionLabel3"></label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option4" name="answer" value="3">
+                            <label for="option4" id="optionLabel4"></label>
+                        </div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button id="prevBtn" class="btn btn-nav" disabled>← Previous</button>
+                        <button id="nextBtn" class="btn btn-nav">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Question Grid -->
+            <div class="quiz-right">
+                <div class="grid-header">Question Grid</div>
+                <div id="questionGrid" class="question-grid">
+                    <!-- Grid items will be dynamically generated -->
+                </div>
+                <button id="submitBtn" class="btn btn-submit">Submit Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Submit Quiz?</h2>
+            <p>Are you sure you want to submit? You cannot change answers after submission.</p>
+            <div class="modal-buttons">
+                <button id="confirmSubmit" class="btn btn-primary">Yes, Submit</button>
+                <button id="cancelSubmit" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal hidden">
+        <div class="modal-content modal-success">
+            <div class="success-icon">✓</div>
+            <h2>Quiz Submitted Successfully!</h2>
+            <p>Results will be announced by Admin.</p>
+            <button id="successBtn" class="btn btn-primary">Go to Home</button>
+        </div>
+    </div>
+
+    <script type="module" src="../frontend/quiz.js"></script>
+</body>
+</html>

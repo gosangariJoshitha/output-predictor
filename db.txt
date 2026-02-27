@@ -1,0 +1,2 @@
+
+mongoose.connect("mongodb+srv://Quizadmin:Quizadmin123@cluster0.z6yqukn.mongodb.net/outputPredictor?retryWrites=true&w=majority")
