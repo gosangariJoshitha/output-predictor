@@ -88,6 +88,12 @@ function displayQuestion() {
     }
 
     updateGrid();
+    // Ensure navigation buttons reflect position
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    // Enable both buttons; navigation will wrap around in handlers
+    if (prevBtn) prevBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
 }
 
 /* ================= SAVE ANSWERS ================= */
@@ -106,17 +112,16 @@ document.querySelectorAll("input[name='answer']").forEach(radio => {
 /* ================= NAVIGATION ================= */
 
 document.getElementById("nextBtn").addEventListener("click", () => {
-    if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex++;
-        displayQuestion();
-    }
+    if (!questions || questions.length === 0) return;
+    currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+    displayQuestion();
 });
 
 document.getElementById("prevBtn").addEventListener("click", () => {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        displayQuestion();
-    }
+    if (!questions || questions.length === 0) return;
+    // Wrap-around to last question when at the first
+    currentQuestionIndex = (currentQuestionIndex - 1 + questions.length) % questions.length;
+    displayQuestion();
 });
 
 /* ================= TIMER ================= */
@@ -275,15 +280,6 @@ document.addEventListener("fullscreenchange", () => {
 document.addEventListener("visibilitychange", function () {
     if (document.hidden && !isSubmitted) {
         alert("Tab switching detected. Quiz will be submitted.");
-        submitQuiz(true);
-    }
-});
-
-/* ================= WINDOW BLUR DETECTION ================= */
-
-window.addEventListener("blur", function () {
-    if (!isSubmitted) {
-        alert("Window focus lost. Quiz will be submitted.");
         submitQuiz(true);
     }
 });

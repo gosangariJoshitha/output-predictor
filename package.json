@@ -2,18 +2,27 @@
   "name": "output-predictor",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gosangariJoshitha/quiztecharena.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gosangariJoshitha/quiztecharena/issues"
+  },
+  "homepage": "https://github.com/gosangariJoshitha/quiztecharena#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "mongoose": "^9.2.3",
-    "mysql2": "^3.18.2"
+    "firebase-admin": "^13.7.0"
   }
 }

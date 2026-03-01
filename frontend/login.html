@@ -65,12 +65,16 @@ function login(e) {
 
         // ADMIN LOGIN
         if (data.role === "admin") {
+            localStorage.setItem("currentUser", "ADMIN");
+            localStorage.setItem("userRole", "admin");
             localStorage.setItem("rollNo", "ADMIN");
             window.location = "admin.html";
             return;
         }
 
         // STUDENT LOGIN
+        localStorage.setItem("currentUser", data.rollNo);
+        localStorage.setItem("userRole", "student");
         localStorage.setItem("name", data.name);
         localStorage.setItem("rollNo", data.rollNo);
         localStorage.setItem("year", data.year);

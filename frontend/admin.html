@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - QuizTech Arena</title>
-    <link rel="stylesheet" href="../frontend/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="admin-container">
@@ -12,6 +12,8 @@
         <div class="admin-header">
             <h1>Admin Dashboard</h1>
             <div class="admin-actions">
+                <span id="publishStatus" class="publish-status">Results: Not Published</span>
+                <button id="publishBtn" class="btn btn-primary">Publish Results</button>
                 <button id="logoutBtn" class="btn btn-logout">Logout</button>
             </div>
         </div>
@@ -58,93 +60,6 @@
         </div>
     </div>
 
-<script>
-
-const API = "http://localhost:5000";
-let leaderboardData = [];
-
-// Protect Admin Route
-if (localStorage.getItem("rollNo") !== "ADMIN") {
-    window.location = "login.html";
-}
-
-// Load Data Initially
-loadLeaderboard();
-
-// Auto refresh every 5 seconds
-setInterval(loadLeaderboard, 5000);
-
-function loadLeaderboard() {
-    fetch(API + "/leaderboard")
-    .then(res => res.json())
-    .then(data => {
-        leaderboardData = data;
-        renderTable(data);
-        updateStats(data);
-    });
-}
-
-function renderTable(data) {
-
-    const tbody = document.getElementById("leaderboardBody");
-    tbody.innerHTML = "";
-
-    if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7">No Submissions Yet</td></tr>`;
-        return;
-    }
-
-    data.forEach((user, index) => {
-
-        let medal = "";
-        if (index === 0) medal = "🥇";
-        if (index === 1) medal = "🥈";
-        if (index === 2) medal = "🥉";
-
-        const row = `
-        <tr class="${index < 3 ? 'top-rank' : ''}">
-            <td>${medal} ${index + 1}</td>
-            <td>${user.name}</td>
-            <td>${user.rollNo}</td>
-            <td>${user.year}</td>
-            <td>${user.score}</td>
-            <td>${user.timeTaken} sec</td>
-            <td>${new Date(user.submittedAt).toLocaleString()}</td>
-        </tr>
-        `;
-
-        tbody.innerHTML += row;
-    });
-}
-
-function updateStats(data) {
-    document.getElementById("totalUsers").innerText = data.length;
-    document.getElementById("submittedCount").innerText = data.length;
-    document.getElementById("pendingCount").innerText = 0;
-}
-
-/* 🔍 SEARCH FILTER */
-const searchInput = document.createElement("input");
-searchInput.placeholder = "Search by Name or Roll No";
-searchInput.className = "search-input";
-searchInput.style.marginBottom = "10px";
-document.querySelector(".leaderboard-section").prepend(searchInput);
-
-searchInput.addEventListener("input", function () {
-    const value = this.value.toLowerCase();
-    const filtered = leaderboardData.filter(user =>
-        user.name.toLowerCase().includes(value) ||
-        user.rollNo.toLowerCase().includes(value)
-    );
-    renderTable(filtered);
-});
-
-/* 🚪 LOGOUT */
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.clear();
-    window.location = "login.html";
-});
-
-</script>
+    <script type="module" src="admin.js"></script>
 </body>
 </html>

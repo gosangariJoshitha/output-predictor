@@ -1,88 +1,91 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const admin = require("firebase-admin");
+const bcrypt = require("bcrypt");
+const path = require("path");
+
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ================= DATABASE CONNECTION ================= */
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, "frontend")));
 
-mongoose.connect("mongodb+srv://Quizadmin:Quizadmin123@cluster0.z6yqukn.mongodb.net/outputPredictor?retryWrites=true&w=majority")
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log("DB Error:", err));
-/* ================= SCHEMAS ================= */
-
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  rollNo: { type: String, required: true, unique: true },
-  year: { type: String, required: true },
-  password: { type: String, required: true },
-  score: { type: Number, default: 0 },
-  timeTaken: { type: Number, default: 0 },
-  submittedAt: { type: Date, default: null },
-  hasAttempted: { type: Boolean, default: false },
-  role: { type: String, default: "student" }
+// Serve index.html for root path
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
-const questionSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  language: { type: String, required: true },
-  question: String,
-  code: String,
-  options: [String],
-  correctAnswer: String
-});
+const SALT_ROUNDS = 10;
 
-const User = mongoose.model("User", userSchema);
-const Question = mongoose.model("Question", questionSchema);
-
-/* ================= ROUTES ================= */
-
-/* ---------- REGISTER ---------- */
+/* ================= REGISTER ================= */
 app.post("/register", async (req, res) => {
   try {
     const { name, rollNo, year, password } = req.body;
 
-    if (!name || !rollNo || !year || !password) {
+    if (!name || !rollNo || !year || !password)
       return res.json({ success: false, message: "All fields required" });
-    }
 
-    const existing = await User.findOne({ rollNo });
+    const userRef = db.collection("users").doc(rollNo);
+    const existingUser = await userRef.get();
 
-    if (existing) {
-      return res.json({ success: false, message: "Roll number already registered" });
-    }
+    if (existingUser.exists)
+      return res.json({ success: false, message: "Roll number already exists" });
 
-    await User.create({ name, rollNo, year, password });
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    res.json({ success: true, message: "Registered Successfully" });
+    await userRef.set({
+      name,
+      rollNo,
+      year,
+      password: hashedPassword,
+      role: "student",
+      score: 0,
+      timeTaken: 0,
+      submittedAt: null,
+      hasAttempted: false,
+      createdAt: new Date()
+    });
 
-  } catch (err) {
-    console.log(err);
+    res.json({ success: true, message: "Registered successfully" });
+
+  } catch (error) {
+    console.error(error);
     res.json({ success: false, message: "Registration failed" });
   }
 });
 
-/* ---------- LOGIN ---------- */
+/* ================= LOGIN ================= */
 app.post("/login", async (req, res) => {
   try {
     const { rollNo, password } = req.body;
 
-    // Admin Login
-    if (rollNo === "ADMIN" && password === "admin@123") {
+    // Secure Admin (can move to env later)
+    if (rollNo === "ADMIN" && password === "admin@123")
       return res.json({ success: true, role: "admin" });
-    }
 
-    const user = await User.findOne({ rollNo, password });
+    const userDoc = await db.collection("users").doc(rollNo).get();
 
-    if (!user) {
+    if (!userDoc.exists)
       return res.json({ success: false, message: "Invalid credentials" });
-    }
 
-    if (user.hasAttempted) {
+    const user = userDoc.data();
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch)
+      return res.json({ success: false, message: "Invalid credentials" });
+
+    if (user.hasAttempted)
       return res.json({ success: false, message: "You have already attempted the quiz" });
-    }
 
     res.json({
       success: true,
@@ -92,78 +95,128 @@ app.post("/login", async (req, res) => {
       year: user.year
     });
 
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.error(error);
     res.json({ success: false, message: "Login failed" });
   }
 });
 
-/* ---------- GET QUESTIONS (Hide Answers) ---------- */
+/* ================= GET QUESTIONS ================= */
 app.get("/questions", async (req, res) => {
   try {
-    const questions = await Question.find({}, "-correctAnswer -_id");
+    const snapshot = await db.collection("questions").orderBy("id").get();
+    const questions = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      questions.push({
+        id: data.id,
+        language: data.language,
+        code: data.code,
+        options: data.options
+      });
+    });
+
     res.json(questions);
-  } catch (err) {
-    console.log(err);
+
+  } catch (error) {
+    console.error(error);
     res.json([]);
   }
 });
 
-/* ---------- SUBMIT QUIZ ---------- */
+/* ================= SUBMIT QUIZ ================= */
 app.post("/submit", async (req, res) => {
   try {
     const { answers, userData } = req.body;
 
-    const user = await User.findOne({ rollNo: userData.rollNo });
+    if (!answers || !userData)
+      return res.json({ success: false });
 
-    if (!user || user.hasAttempted) {
-      return res.json({ success: false, message: "Invalid submission" });
-    }
+    const userRef = db.collection("users").doc(userData.rollNo);
+    const userDoc = await userRef.get();
 
-    const questions = await Question.find();
+    if (!userDoc.exists)
+      return res.json({ success: false });
+
+    const user = userDoc.data();
+
+    if (user.hasAttempted)
+      return res.json({ success: false, message: "Already submitted" });
+
+    const questionsSnapshot = await db.collection("questions").get();
+
     let score = 0;
 
-    // 1 mark per correct answer
-    questions.forEach(q => {
-      if (answers[q.id] === q.correctAnswer) {
-        score += 1;
-      }
+    questionsSnapshot.forEach(doc => {
+      const q = doc.data();
+      if (answers[q.id] === q.correctAnswer)
+        score++;
     });
 
-    user.score = score;
-    user.timeTaken = userData.timeTaken;
-    user.submittedAt = new Date();
-    user.hasAttempted = true;
+    await userRef.update({
+      score,
+      timeTaken: userData.timeTaken,
+      submittedAt: new Date(),
+      hasAttempted: true
+    });
 
-    await user.save();
+    res.json({ success: true, score });
 
-    res.json({ success: true });
-
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false, message: "Submission failed" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false });
   }
 });
 
-/* ---------- LEADERBOARD ---------- */
+/* ================= LEADERBOARD ================= */
 app.get("/leaderboard", async (req, res) => {
   try {
-    const users = await User.find({ hasAttempted: true })
-      .sort({
-        score: -1,        // Higher score first
-        timeTaken: 1,     // Lower time first
-        submittedAt: 1    // Earlier submission wins
+    const snapshot = await db.collection("users")
+      .where("hasAttempted", "==", true)
+      .orderBy("score", "desc")
+      .orderBy("timeTaken", "asc")
+      .orderBy("submittedAt", "asc")
+      .get();
+
+    const users = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      users.push({
+        name: data.name,
+        rollNo: data.rollNo,
+        year: data.year,
+        score: data.score,
+        timeTaken: data.timeTaken
       });
+    });
 
     res.json(users);
-  } catch (err) {
-    console.log(err);
+
+  } catch (error) {
+    console.error(error);
     res.json([]);
   }
 });
 
-/* ================= SERVER ================= */
+/* ================= RESET USER (Admin Optional) ================= */
+app.post("/reset-user", async (req, res) => {
+  const { rollNo } = req.body;
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+  await db.collection("users").doc(rollNo).update({
+    score: 0,
+    timeTaken: 0,
+    submittedAt: null,
+    hasAttempted: false
+  });
+
+  res.json({ success: true });
+});
+
+/* ================= SERVER ================= */
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🔥 Server running on port ${PORT}`);
 });
