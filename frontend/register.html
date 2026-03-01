@@ -67,7 +67,10 @@ function register(e) {
         return;
     }
 
-    fetch("http://localhost:5000/register", {
+    const apiBaseUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : window.location.origin;
+    fetch(apiBaseUrl + "/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, rollNo, year, password })

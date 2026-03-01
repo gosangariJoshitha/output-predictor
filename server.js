@@ -4,7 +4,19 @@ const admin = require("firebase-admin");
 const bcrypt = require("bcrypt");
 const path = require("path");
 
-const serviceAccount = require("./serviceAccountKey.json");
+// Load Firebase service account credentials from environment or file
+let serviceAccount;
+
+if (process.env.SERVICE_ACCOUNT_KEY_BASE64) {
+  try {
+    serviceAccount = JSON.parse(Buffer.from(process.env.SERVICE_ACCOUNT_KEY_BASE64, 'base64').toString());
+  } catch (e) {
+    console.error('Failed to parse SERVICE_ACCOUNT_KEY_BASE64:', e);
+  }
+} else {
+  // fallback for local development
+  serviceAccount = require("./serviceAccountKey.json");
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
