@@ -2,6 +2,15 @@
 
 This repository contains the frontend and backend for a competitive programming quiz application. The backend uses Node.js and Firebase Admin (Firestore) while the frontend is a vanilla HTML/CSS/JS app.
 
+## Live Demo
+
+The application is deployed and accessible via the following live URLs:
+
+- **Frontend (Vercel):** Deployed on Vercel
+- **Backend API (Render):** `https://output-predictor.onrender.com`
+
+*Note: The frontend is configured to automatically communicate with the live Render backend or localhost depending on the environment.*
+
 ## Local Development
 
 To run this project locally:
@@ -44,17 +53,18 @@ The project is split into two main components:
 
 ### 2. Deploying the Frontend (Vercel)
 
-1. Update `frontend/config.js` with your Render API URL.
+1. The `frontend/config.js` is already configured to use the live Render API URL in production:
    ```javascript
-   export const API_BASE_URL = 'https://your-app-name.onrender.com';
+   export const API_BASE_URL = window.location.hostname === 'localhost' 
+     ? 'http://localhost:5000'
+     : 'https://output-predictor.onrender.com';
    ```
-2. Commit and push this change to your repository.
-3. Create a new **Project** on [Vercel](https://vercel.com).
-4. Connect your GitHub repository.
-5. In the Vercel setup:
+2. Create a new **Project** on [Vercel](https://vercel.com).
+3. Connect your GitHub repository.
+4. In the Vercel setup:
    - **Framework Preset**: `Other`
    - **Root Directory**: `frontend`
-6. Click **Deploy**.
+5. Click **Deploy**.
 
 ## Git hygiene
 Sensitive files (e.g., `serviceAccountKey.json`, `.env`) are ignored. If secrets are ever committed, use BFG or `git filter-repo` to remove them and force-push the cleaned history.
