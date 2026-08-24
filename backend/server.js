@@ -29,13 +29,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from frontend directory
-app.use(express.static(path.join(__dirname, "frontend")));
 
-// Serve index.html for root path
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
-});
 
 const SALT_ROUNDS = 10;
 

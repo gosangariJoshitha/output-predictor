@@ -10,24 +10,23 @@
     <div class="container auth-page">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Register</h1>
-                <p>Join the Competition</p>
+                <h1>Create Account</h1>
+                <p>Join the Competition Arena</p>
             </div>
 
-            <!-- IMPORTANT: onsubmit added -->
-            <form class="form" onsubmit="register(event)">
+            <form class="form" id="registerForm">
                 <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" required placeholder="Enter your full name">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="e.g. John Doe">
                 </div>
 
                 <div class="form-group">
                     <label for="rollNo">Roll No</label>
-                    <input type="text" id="rollNo" required placeholder="Enter your roll number">
+                    <input type="text" id="rollNo" required placeholder="Enter your academic ID">
                 </div>
 
                 <div class="form-group">
-                    <label for="year">Year</label>
+                    <label for="year">Academic Year</label>
                     <select id="year" required>
                         <option value="">Select Year</option>
                         <option value="1">First Year</option>
@@ -39,22 +38,24 @@
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Create a password">
+                    <input type="password" id="password" required placeholder="Create a secure password">
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
-                    Register
+                    Register Now
                 </button>
             </form>
 
             <div class="auth-footer">
-                <p>Already have an account? <a href="login.html">Login here</a></p>
+                <p>Already in the system? <a href="login.html">Sign in here</a></p>
             </div>
         </div>
     </div>
 
-<script>
-function register(e) {
+<script type="module">
+import { API_BASE_URL } from './config.js';
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();   // VERY IMPORTANT (stops page reload)
 
     const name = document.getElementById("name").value.trim();
@@ -67,10 +68,7 @@ function register(e) {
         return;
     }
 
-    const apiBaseUrl = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5000'
-      : window.location.origin;
-    fetch(apiBaseUrl + "/register", {
+    fetch(API_BASE_URL + "/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, rollNo, year, password })
@@ -88,7 +86,7 @@ function register(e) {
         console.error("Error:", err);
         alert("Server error. Make sure backend is running.");
     });
-}
+});
 </script>
 
 </body>

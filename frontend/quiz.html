@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz - QuizTech Arena</title>
-     <link rel="stylesheet" href="style.css">
+    <title>Arena - QuizTech Arena</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="quiz-container">
-        <!-- Header -->
         <div class="quiz-header">
             <div class="quiz-title">QuizTech Arena</div>
             <div class="timer-section">
-                <span class="timer-label">Time Remaining:</span>
+                <span class="timer-label">Time Remaining</span>
                 <div id="timer" class="timer">30:00</div>
             </div>
-            <button id="logoutBtn" class="btn btn-logout">Logout</button>
+            <button id="logoutBtn" class="btn btn-logout">End Session</button>
         </div>
 
         <div class="quiz-main">
-            <!-- Left Panel - Questions -->
             <div class="quiz-left">
                 <div class="question-section">
                     <div class="question-header">
@@ -28,7 +26,7 @@
                     </div>
 
                     <div class="code-block">
-                        <pre id="codeContent">// Code will load here</pre>
+                        <pre id="codeContent">// Code logic will load here</pre>
                     </div>
 
                     <div class="options-section">
@@ -57,18 +55,17 @@
                 </div>
             </div>
 
-            <!-- Right Panel - Question Grid -->
             <div class="quiz-right">
-                <div class="grid-header">Question Grid</div>
-                <div id="questionGrid" class="question-grid">
-                    <!-- Grid items will be dynamically generated -->
+                <div class="grid-header">
+                    <span>Navigation</span>
                 </div>
-                <button id="submitBtn" class="btn btn-submit">Submit Quiz</button>
+                <div id="questionGrid" class="question-grid">
+                    </div>
+                <button id="submitBtn" class="btn btn-submit">Submit Assessment</button>
             </div>
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirmModal" class="modal hidden">
         <div class="modal-content">
             <h2>Submit Quiz?</h2>
@@ -80,7 +77,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div id="successModal" class="modal hidden">
         <div class="modal-content modal-success">
             <div class="success-icon">✓</div>

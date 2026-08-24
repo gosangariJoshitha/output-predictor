@@ -4,10 +4,7 @@ let answers = {};
 let timerInterval;
 let isSubmitted = false;
 
-// API Configuration for environment-aware URLs
-const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000'
-  : window.location.origin;
+import { API_BASE_URL } from './config.js';
 
 /* ================= ROUTE PROTECTION ================= */
 

@@ -11,12 +11,11 @@
 <div class="container auth-page">
     <div class="auth-card">
         <div class="auth-header">
-            <h1>Login</h1>
-            <p>Welcome Back</p>
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue your session</p>
         </div>
 
-        <!-- Login Form -->
-        <form class="form" onsubmit="login(event)">
+        <form class="form" id="loginForm">
             <div class="form-group">
                 <label for="rollNo">Roll No</label>
                 <input type="text" id="rollNo" required placeholder="Enter your roll number">
@@ -28,7 +27,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">
-                Login
+                Sign In
             </button>
         </form>
 
@@ -38,8 +37,10 @@
     </div>
 </div>
 
-<script>
-function login(e) {
+<script type="module">
+import { API_BASE_URL } from './config.js';
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Prevent page reload
 
     const rollNo = document.getElementById("rollNo").value.trim();
@@ -50,10 +51,7 @@ function login(e) {
         return;
     }
 
-    const apiBaseUrl = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5000'
-      : window.location.origin;
-    fetch(apiBaseUrl + "/login", {
+    fetch(API_BASE_URL + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rollNo, password })
@@ -88,7 +86,7 @@ function login(e) {
         console.error("Login Error:", err);
         alert("Server error. Make sure backend is running.");
     });
-}
+});
 </script>
 
 </body>
