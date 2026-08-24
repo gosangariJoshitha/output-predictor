@@ -6,7 +6,7 @@ This repository contains the frontend and backend for a competitive programming 
 
 The application is deployed and accessible via the following live URLs:
 
-- **Frontend (Vercel):** Deployed on Vercel
+- **Frontend (Vercel):** [https://output-predictor.vercel.app/](https://output-predictor.vercel.app/)
 - **Backend API (Render):** `https://output-predictor.onrender.com`
 
 *Note: The frontend is configured to automatically communicate with the live Render backend or localhost depending on the environment.*
